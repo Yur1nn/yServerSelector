@@ -1,63 +1,29 @@
 package dev.onelimit.velocityserverselector.config;
 
+import dev.onelimit.ycore.velocity.api.config.YamlConfigLoader;
 import org.slf4j.Logger;
-import org.yaml.snakeyaml.Yaml;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.Reader;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 public final class ConfigService {
-    private final Logger logger;
-    private final Path dataDirectory;
-    private final Path configPath;
-    private final Yaml yaml;
+    private final YamlConfigLoader<SelectorConfig> configLoader;
 
     public ConfigService(Logger logger, Path dataDirectory) {
-        this.logger = logger;
-        this.dataDirectory = dataDirectory;
-        this.configPath = dataDirectory.resolve("config.yml");
-        this.yaml = new Yaml();
+        this.configLoader = new YamlConfigLoader<>(
+            logger,
+            dataDirectory,
+            "config.yml",
+            "config.yml",
+            this::parse,
+            SelectorConfig::defaults
+        );
     }
 
     public SelectorConfig load() {
-        ensureDefaultExists();
-
-        try (Reader reader = Files.newBufferedReader(configPath, StandardCharsets.UTF_8)) {
-            Object loaded = yaml.load(reader);
-            if (!(loaded instanceof Map<?, ?> root)) {
-                logger.warn("Config root is invalid; using defaults.");
-                return SelectorConfig.defaults();
-            }
-            return parse(root);
-        } catch (Exception ex) {
-            logger.error("Failed to load config.yml, using defaults.", ex);
-            return SelectorConfig.defaults();
-        }
-    }
-
-    private void ensureDefaultExists() {
-        try {
-            Files.createDirectories(dataDirectory);
-            if (Files.exists(configPath)) {
-                return;
-            }
-
-            try (InputStream stream = getClass().getClassLoader().getResourceAsStream("config.yml")) {
-                if (stream == null) {
-                    throw new IOException("Missing bundled config.yml");
-                }
-                Files.copy(stream, configPath);
-            }
-        } catch (IOException ex) {
-            throw new IllegalStateException("Could not initialize config.yml", ex);
-        }
+        return configLoader.load();
     }
 
     private SelectorConfig parse(Map<?, ?> root) {

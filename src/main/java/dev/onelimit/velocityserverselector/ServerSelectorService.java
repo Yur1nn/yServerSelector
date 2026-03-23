@@ -5,10 +5,11 @@ import com.velocitypowered.api.proxy.ProxyServer;
 import com.velocitypowered.api.proxy.server.RegisteredServer;
 import dev.onelimit.velocityserverselector.config.MenuItemConfig;
 import dev.onelimit.velocityserverselector.config.SelectorConfig;
+import dev.onelimit.ycore.velocity.api.compat.DependencyChecker;
+import dev.onelimit.ycore.velocity.api.text.CoreTextRenderer;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
-import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.slf4j.Logger;
 
 import java.util.Comparator;
@@ -21,7 +22,8 @@ import java.util.Optional;
 public final class ServerSelectorService {
     private final ProxyServer server;
     private final Logger logger;
-    private final MiniMessage miniMessage;
+    private final CoreTextRenderer textRenderer;
+    private final DependencyChecker dependencyChecker;
 
     private SelectorConfig config;
     private Map<String, MenuItemConfig> itemsByKey;
@@ -29,7 +31,8 @@ public final class ServerSelectorService {
     public ServerSelectorService(ProxyServer server, Logger logger, SelectorConfig config) {
         this.server = server;
         this.logger = logger;
-        this.miniMessage = MiniMessage.miniMessage();
+        this.textRenderer = new CoreTextRenderer();
+        this.dependencyChecker = new DependencyChecker(server);
         this.config = config;
         rebuildItemsIndex();
     }
@@ -132,8 +135,7 @@ public final class ServerSelectorService {
     }
 
     private boolean hasAjQueue() {
-        return server.getPluginManager().getPlugins().stream()
-            .anyMatch(container -> container.getDescription().getId().toLowerCase(Locale.ROOT).contains("ajqueue"));
+        return dependencyChecker.hasPlugin("ajqueue");
     }
 
     private Component buildItemHover(MenuItemConfig item) {
@@ -163,6 +165,6 @@ public final class ServerSelectorService {
     }
 
     private Component render(String miniMessageText) {
-        return miniMessage.deserialize(miniMessageText == null ? "" : miniMessageText);
+        return textRenderer.render(miniMessageText);
     }
 }

@@ -6,6 +6,7 @@ import com.velocitypowered.api.command.CommandMeta;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
 import com.velocitypowered.api.plugin.Plugin;
+import com.velocitypowered.api.plugin.Dependency;
 import com.velocitypowered.api.plugin.annotation.DataDirectory;
 import com.velocitypowered.api.proxy.ProxyServer;
 import dev.onelimit.velocityserverselector.command.ServerCommand;
@@ -20,7 +21,10 @@ import java.util.List;
     id = "velocityserverselector",
     name = "VelocityServerSelector",
     version = "1.0.0",
-    authors = {"OneLimit"}
+    authors = {"OneLimit"},
+    dependencies = {
+        @Dependency(id = "ycorevelocity", optional = false)
+    }
 )
 public final class VelocityServerSelectorPlugin {
     private final ProxyServer server;
