@@ -1,0 +1,44 @@
+# VelocityServerSelector
+# Note: Velocity cannot open native chest inventories by itself.
+# This plugin renders a chest-style clickable menu in chat with slot layout.
+
+config-version: 1
+debug: false
+
+command:
+  enabled: true
+  aliases: ["server", "servers"]
+  require-permission: false
+  permission: "velocityserverselector.admin"
+
+menu:
+  rows: 3
+  title: "<gold><bold>Server Selector</bold></gold>"
+  header: "<gray>Pick a server:</gray>"
+  footer: "<dark_gray>Tip: Click a block or legend entry.</dark_gray>"
+  empty-slot-symbol: "<dark_gray>·</dark_gray>"
+
+  # Used when item `use-queue: true` and AJQueue is installed.
+  queue-command-template: "/ajqueue join %server%"
+
+  items:
+    - key: lobby
+      slot: 10
+      server: server1
+      icon: NETHER_STAR
+      use-queue: false
+      display: "<aqua><bold>Lobby</bold></aqua>"
+      lore:
+        - "<gray>Players:</gray> <white>%player_count%</white>"
+        - "<gray>Status:</gray> <green>%status%</green>"
+
+    - key: survival
+      slot: 12
+      server: server2
+      icon: GRASS_BLOCK
+      use-queue: true
+      display: "<green><bold>Survival</bold></green>"
+      lore:
+        - "<gray>Players:</gray> <white>%player_count%</white>"
+        - "<gray>Status:</gray> <green>%status%</green>"
+        - "<gray>Queue Enabled:</gray> <yellow>%has_ajqueue%</yellow>"
