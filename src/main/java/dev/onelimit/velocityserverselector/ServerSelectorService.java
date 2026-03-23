@@ -7,6 +7,7 @@ import dev.onelimit.velocityserverselector.config.MenuItemConfig;
 import dev.onelimit.velocityserverselector.config.SelectorConfig;
 import dev.onelimit.ycore.velocity.api.compat.DependencyChecker;
 import dev.onelimit.ycore.velocity.api.text.CoreTextRenderer;
+import dev.onelimit.ycore.velocity.api.util.CorePlaceholders;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
@@ -101,7 +102,7 @@ public final class ServerSelectorService {
         }
 
         if (item.useQueue() && hasAjQueue()) {
-            String command = config.queueCommandTemplate().replace("%server%", item.server());
+            String command = CorePlaceholders.replaceNamed(config.queueCommandTemplate(), Map.of("server", item.server()));
             String toRun = command.startsWith("/") ? command.substring(1) : command;
             player.spoofChatInput(toRun);
             return;
@@ -154,14 +155,15 @@ public final class ServerSelectorService {
 
         String status = server.getServer(item.server()).isPresent() ? "ONLINE" : "OFFLINE";
 
-        return text
-            .replace("%server%", item.server())
-            .replace("%server_name%", item.server())
-            .replace("%player_count%", Integer.toString(online))
-            .replace("%online%", Integer.toString(online))
-            .replace("%status%", status)
-            .replace("%icon%", item.icon())
-            .replace("%has_ajqueue%", Boolean.toString(hasAjQueue()));
+        return CorePlaceholders.replaceNamed(text, Map.of(
+            "server", item.server(),
+            "server_name", item.server(),
+            "player_count", online,
+            "online", online,
+            "status", status,
+            "icon", item.icon(),
+            "has_ajqueue", hasAjQueue()
+        ));
     }
 
     private Component render(String miniMessageText) {
