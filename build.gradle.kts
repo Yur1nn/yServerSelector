@@ -2,8 +2,12 @@ plugins {
     java
 }
 
-group = "dev.onelimit"
+group = "dev.onelimit.yserverselector"
 version = "1.0.0"
+
+base {
+    archivesName.set("yserverselector")
+}
 
 repositories {
     mavenCentral()

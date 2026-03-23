@@ -1,3 +1,3 @@
-rootProject.name = "VelocityServerSelector"
+rootProject.name = "yServerSelector"
 
 includeBuild("../yCore-Velocity")

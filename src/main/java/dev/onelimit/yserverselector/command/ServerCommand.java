@@ -1,15 +1,15 @@
-package dev.onelimit.velocityserverselector.command;
+package dev.onelimit.yserverselector.command;
 
 import com.velocitypowered.api.command.SimpleCommand;
 import com.velocitypowered.api.proxy.Player;
-import dev.onelimit.velocityserverselector.ServerSelectorService;
-import dev.onelimit.velocityserverselector.VelocityServerSelectorPlugin;
+import dev.onelimit.yserverselector.ServerSelectorService;
+import dev.onelimit.yserverselector.YServerSelectorPlugin;
 
 public final class ServerCommand implements SimpleCommand {
-    private final VelocityServerSelectorPlugin plugin;
+    private final YServerSelectorPlugin plugin;
     private final ServerSelectorService selectorService;
 
-    public ServerCommand(VelocityServerSelectorPlugin plugin, ServerSelectorService selectorService) {
+    public ServerCommand(YServerSelectorPlugin plugin, ServerSelectorService selectorService) {
         this.plugin = plugin;
         this.selectorService = selectorService;
     }
@@ -25,7 +25,7 @@ public final class ServerCommand implements SimpleCommand {
             }
 
             plugin.reload();
-            invocation.source().sendPlainMessage("VelocityServerSelector reloaded.");
+            invocation.source().sendPlainMessage("yServerSelector reloaded.");
             return;
         }
 
@@ -47,3 +47,4 @@ public final class ServerCommand implements SimpleCommand {
         selectorService.openMenu(player);
     }
 }
+

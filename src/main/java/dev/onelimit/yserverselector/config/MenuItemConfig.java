@@ -1,4 +1,4 @@
-package dev.onelimit.velocityserverselector.config;
+package dev.onelimit.yserverselector.config;
 
 import java.util.List;
 
@@ -9,6 +9,9 @@ public record MenuItemConfig(
     String display,
     List<String> lore,
     String icon,
+    boolean enabled,
+    boolean showWhenOffline,
     boolean useQueue
 ) {
 }
+

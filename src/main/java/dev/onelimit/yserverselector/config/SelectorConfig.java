@@ -1,4 +1,4 @@
-package dev.onelimit.velocityserverselector.config;
+package dev.onelimit.yserverselector.config;
 
 import java.util.List;
 
@@ -9,11 +9,10 @@ public record SelectorConfig(
     List<String> commandAliases,
     boolean requirePermission,
     String permission,
+    String pluginMessageChannel,
+    int pingIntervalSeconds,
     int menuRows,
     String menuTitle,
-    String menuHeader,
-    String menuFooter,
-    String emptySlotSymbol,
     String queueCommandTemplate,
     List<MenuItemConfig> items
 ) {
@@ -24,12 +23,11 @@ public record SelectorConfig(
             true,
             List.of("server"),
             false,
-            "velocityserverselector.admin",
+            "yserverselector.admin",
+            "onelimit:yss",
+            5,
             3,
             "<gold><bold>Server Selector</bold></gold>",
-            "<gray>Select a server:</gray>",
-            "<dark_gray>Click a server block or legend entry.</dark_gray>",
-            "<dark_gray>·</dark_gray>",
             "/ajqueue join %server%",
             List.of(
                 new MenuItemConfig(
@@ -42,9 +40,12 @@ public record SelectorConfig(
                         "<gray>Status:</gray> <green>%status%</green>"
                     ),
                     "NETHER_STAR",
+                    true,
+                    true,
                     false
                 )
             )
         );
     }
 }
+

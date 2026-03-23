@@ -1,4 +1,4 @@
-package dev.onelimit.velocityserverselector.config;
+package dev.onelimit.yserverselector.config;
 
 import dev.onelimit.ycore.velocity.api.config.ConfigValueReader;
 import dev.onelimit.ycore.velocity.api.config.YamlConfigLoader;
@@ -34,7 +34,7 @@ public final class ConfigService {
         Map<String, Object> command = ConfigValueReader.map(root.get("command"));
         boolean commandEnabled = ConfigValueReader.bool(command.get("enabled"), true);
         boolean requirePermission = ConfigValueReader.bool(command.get("require-permission"), false);
-        String permission = ConfigValueReader.string(command.get("permission"), "velocityserverselector.admin");
+        String permission = ConfigValueReader.string(command.get("permission"), "yserverselector.admin");
 
         List<String> aliases = parseAliases(command.get("aliases"));
         if (aliases.isEmpty()) {
@@ -42,11 +42,10 @@ public final class ConfigService {
         }
 
         Map<String, Object> menu = ConfigValueReader.map(root.get("menu"));
+        String pluginMessageChannel = ConfigValueReader.string(menu.get("plugin-message-channel"), "onelimit:yss");
+        int pingIntervalSeconds = Math.max(2, ConfigValueReader.integer(menu.get("ping-interval-seconds"), 5));
         int rows = Math.max(1, Math.min(6, ConfigValueReader.integer(menu.get("rows"), 3)));
         String title = ConfigValueReader.string(menu.get("title"), "<gold><bold>Server Selector</bold></gold>");
-        String header = ConfigValueReader.string(menu.get("header"), "<gray>Select a server:</gray>");
-        String footer = ConfigValueReader.string(menu.get("footer"), "<dark_gray>Click a server block or legend entry.</dark_gray>");
-        String emptySlotSymbol = ConfigValueReader.string(menu.get("empty-slot-symbol"), "<dark_gray>·</dark_gray>");
         String queueCommandTemplate = ConfigValueReader.string(menu.get("queue-command-template"), "/ajqueue join %server%");
 
         List<MenuItemConfig> items = parseItems(menu.get("items"));
@@ -58,11 +57,10 @@ public final class ConfigService {
             aliases,
             requirePermission,
             permission,
+            pluginMessageChannel,
+            pingIntervalSeconds,
             rows,
             title,
-            header,
-            footer,
-            emptySlotSymbol,
             queueCommandTemplate,
             items
         );
@@ -88,10 +86,12 @@ public final class ConfigService {
             int slot = Math.max(0, ConfigValueReader.integer(map.get("slot"), 0));
             String display = ConfigValueReader.string(map.get("display"), "<white>" + key + "</white>");
             String icon = ConfigValueReader.string(map.get("icon"), "STONE");
+            boolean enabled = ConfigValueReader.bool(map.get("enabled"), true);
+            boolean showWhenOffline = ConfigValueReader.bool(map.get("show-when-offline"), true);
             boolean useQueue = ConfigValueReader.bool(map.get("use-queue"), false);
             List<String> lore = parseStringList(map.get("lore"));
 
-            items.add(new MenuItemConfig(key, slot, server, display, lore, icon, useQueue));
+            items.add(new MenuItemConfig(key, slot, server, display, lore, icon, enabled, showWhenOffline, useQueue));
         }
 
         return items;
@@ -114,3 +114,4 @@ public final class ConfigService {
         return ConfigValueReader.stringList(raw);
     }
 }
+
