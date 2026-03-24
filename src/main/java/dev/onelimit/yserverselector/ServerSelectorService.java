@@ -7,6 +7,7 @@ import com.velocitypowered.api.proxy.messages.ChannelIdentifier;
 import com.velocitypowered.api.proxy.messages.MinecraftChannelIdentifier;
 import com.velocitypowered.api.proxy.server.RegisteredServer;
 import com.velocitypowered.api.scheduler.ScheduledTask;
+import dev.onelimit.ycore.velocity.api.text.CoreTextRenderer;
 import dev.onelimit.ycore.velocity.api.util.CorePlaceholders;
 import dev.onelimit.yserverselector.config.BalancingMode;
 import dev.onelimit.yserverselector.config.MenuItemConfig;
@@ -46,6 +47,7 @@ public final class ServerSelectorService {
     private final YServerSelectorPlugin plugin;
     private final ProxyServer server;
     private final Logger logger;
+    private final CoreTextRenderer renderer = new CoreTextRenderer();
 
     private SelectorConfig config;
     private Map<String, MenuItemConfig> itemsByKey;
@@ -139,10 +141,20 @@ public final class ServerSelectorService {
 
             if (SELECT_SERVER_ACTION.equals(action)) {
                 handleSelection(source, in);
+                return;
+            }
+
+            if (OPEN_MENU_ACTION.equals(action)) {
+                handleOpenMenuRequest(in);
             }
         } catch (IOException ex) {
             logger.warn("Failed to process yServerSelector bridge message", ex);
         }
+    }
+
+    private void handleOpenMenuRequest(DataInputStream in) throws IOException {
+        UUID playerId = UUID.fromString(in.readUTF());
+        server.getPlayer(playerId).ifPresent(this::openMenu);
     }
 
     public void openMenu(Player player) {
@@ -408,8 +420,8 @@ public final class ServerSelectorService {
                 key,
                 slot,
                 member,
-                CorePlaceholders.replaceNamed(item.display(), values),
-                lore,
+                renderer.renderAsString(CorePlaceholders.replaceNamed(item.display(), values)),
+                lore.stream().map(renderer::renderAsString).toList(),
                 item.icon(),
                 status.online(),
                 false,
@@ -421,7 +433,7 @@ public final class ServerSelectorService {
 
         int rows = Math.max(1, Math.min(6, (int) Math.ceil(payloadItems.size() / 9.0)));
         String title = "<gold><bold>Select " + group.key() + "</bold></gold>";
-        boolean sent = sendMenuPayload(current.get(), player.getUniqueId(), rows, title, payloadItems);
+        boolean sent = sendMenuPayload(current.get(), player.getUniqueId(), rows, renderer.renderAsString(title), payloadItems);
         if (!sent) {
             player.sendPlainMessage("Unable to open group list on this backend.");
             return;
