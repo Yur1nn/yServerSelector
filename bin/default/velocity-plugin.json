@@ -1,0 +1,1 @@
+{"id":"yserverselector","name":"yServerSelector","version":"1.0.0","authors":["OneLimit"],"dependencies":[{"id":"ycorevelocity","optional":false}],"main":"dev.onelimit.yserverselector.YServerSelectorPlugin"}

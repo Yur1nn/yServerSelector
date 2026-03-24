@@ -11,9 +11,17 @@ public record SelectorConfig(
     String permission,
     String pluginMessageChannel,
     int pingIntervalSeconds,
+    boolean nativeQueueEnabled,
+    int queueCheckIntervalSeconds,
+    int queueEntryTimeoutSeconds,
+    int queueMaxSizePerServer,
+    boolean queueNotifyPosition,
+    int queuePositionUpdateSeconds,
+    int queueDrainPerCycle,
+    String fallbackServer,
+    List<ServerGroupConfig> groups,
     int menuRows,
     String menuTitle,
-    String queueCommandTemplate,
     List<MenuItemConfig> items
 ) {
     public static SelectorConfig defaults() {
@@ -26,9 +34,17 @@ public record SelectorConfig(
             "yserverselector.admin",
             "onelimit:yss",
             5,
+            true,
+            2,
+            180,
+            200,
+            true,
+            10,
+            1,
+            "",
+            List.of(),
             3,
             "<gold><bold>Server Selector</bold></gold>",
-            "/ajqueue join %server%",
             List.of(
                 new MenuItemConfig(
                     "lobby",

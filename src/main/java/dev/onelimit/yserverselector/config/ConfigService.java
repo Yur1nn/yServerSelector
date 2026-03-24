@@ -44,9 +44,21 @@ public final class ConfigService {
         Map<String, Object> menu = ConfigValueReader.map(root.get("menu"));
         String pluginMessageChannel = ConfigValueReader.string(menu.get("plugin-message-channel"), "onelimit:yss");
         int pingIntervalSeconds = Math.max(2, ConfigValueReader.integer(menu.get("ping-interval-seconds"), 5));
+
+        Map<String, Object> queue = ConfigValueReader.map(root.get("queue"));
+        boolean nativeQueueEnabled = ConfigValueReader.bool(queue.get("enabled"), true);
+        int queueCheckIntervalSeconds = Math.max(1, ConfigValueReader.integer(queue.get("check-interval-seconds"), 2));
+        int queueEntryTimeoutSeconds = Math.max(15, ConfigValueReader.integer(queue.get("entry-timeout-seconds"), 180));
+        int queueMaxSizePerServer = Math.max(1, ConfigValueReader.integer(queue.get("max-size-per-server"), 200));
+        boolean queueNotifyPosition = ConfigValueReader.bool(queue.get("notify-position"), true);
+        int queuePositionUpdateSeconds = Math.max(2, ConfigValueReader.integer(queue.get("position-update-seconds"), 10));
+        int queueDrainPerCycle = Math.max(1, ConfigValueReader.integer(queue.get("drain-per-cycle"), 1));
+        String fallbackServer = ConfigValueReader.string(queue.get("fallback-server"), "").trim();
+
+        List<ServerGroupConfig> groups = parseGroups(root.get("groups"));
+
         int rows = Math.max(1, Math.min(6, ConfigValueReader.integer(menu.get("rows"), 3)));
         String title = ConfigValueReader.string(menu.get("title"), "<gold><bold>Server Selector</bold></gold>");
-        String queueCommandTemplate = ConfigValueReader.string(menu.get("queue-command-template"), "/ajqueue join %server%");
 
         List<MenuItemConfig> items = parseItems(menu.get("items"));
 
@@ -59,11 +71,44 @@ public final class ConfigService {
             permission,
             pluginMessageChannel,
             pingIntervalSeconds,
+            nativeQueueEnabled,
+            queueCheckIntervalSeconds,
+            queueEntryTimeoutSeconds,
+            queueMaxSizePerServer,
+            queueNotifyPosition,
+            queuePositionUpdateSeconds,
+            queueDrainPerCycle,
+            fallbackServer,
+            groups,
             rows,
             title,
-            queueCommandTemplate,
             items
         );
+    }
+
+    private List<ServerGroupConfig> parseGroups(Object raw) {
+        List<ServerGroupConfig> groups = new ArrayList<>();
+        if (!(raw instanceof Map<?, ?> rootMap)) {
+            return groups;
+        }
+
+        for (Map.Entry<?, ?> entry : rootMap.entrySet()) {
+            String key = ConfigValueReader.string(entry.getKey(), "").trim().toLowerCase();
+            if (key.isEmpty() || !(entry.getValue() instanceof Map<?, ?> groupMap)) {
+                continue;
+            }
+
+            List<String> members = parseAliases(groupMap.get("members"));
+            if (members.isEmpty()) {
+                continue;
+            }
+
+            String modeRaw = ConfigValueReader.string(groupMap.get("balancing-mode"), "ROUND_ROBIN");
+            BalancingMode mode = BalancingMode.fromString(modeRaw);
+            groups.add(new ServerGroupConfig(key, members, mode));
+        }
+
+        return groups;
     }
 
     private List<MenuItemConfig> parseItems(Object raw) {
@@ -78,7 +123,10 @@ public final class ConfigService {
             }
 
             String key = ConfigValueReader.string(map.get("key"), "").trim().toLowerCase();
-            String server = ConfigValueReader.string(map.get("server"), "").trim();
+            String server = ConfigValueReader.string(map.get("target"), "").trim();
+            if (server.isEmpty()) {
+                server = ConfigValueReader.string(map.get("server"), "").trim();
+            }
             if (key.isEmpty() || server.isEmpty()) {
                 continue;
             }

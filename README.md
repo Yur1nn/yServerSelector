@@ -5,7 +5,7 @@ A Velocity + Paper pair that provides a real chest GUI selector.
 ## Architecture
 
 - `yServerSelector` (Velocity):
-  - owns command handling, server snapshots, AJQueue hook, and connection routing.
+  - owns command handling, server snapshots, native queue/fallback logic, and connection routing.
   - sends menu payloads to the player's current backend server over plugin messaging.
 - `yServerSelector-Paper` (Paper, required on each child server):
   - receives menu payload and opens a native chest GUI.
@@ -16,15 +16,27 @@ A Velocity + Paper pair that provides a real chest GUI selector.
 - `/server` command opens a real chest inventory menu
 - Static enable/disable per item (`enabled`)
 - Optional hide when backend is offline (`show-when-offline`)
+- Native server groups (`groups`) with balancing modes:
+  - `ROUND_ROBIN`
+  - `LEAST_PLAYERS`
+  - `RANDOM`
+  - `FIRST_AVAILABLE`
+  - `FILL`
 - Proxy ping polling + Paper heartbeat for online/player count visibility
-- Optional AJQueue integration:
-  - if AJQueue is present and item has `use-queue: true`, runs configured queue command
-  - otherwise uses direct Velocity server connect
+- Built-in native queue system
+- Optional fallback routing when destination connect/queue fails
+- Group picker UX:
+  - Left-click group entry: normal routing/queue
+  - If already on a member of that group, left-click opens member list instead of queueing
+  - Right-click group entry always opens member list
 
 ## Commands
 
 - `/server` - open selector menu
 - `/server join <key>` - connect to a configured entry by key
+- `/server status` - show your current queue status
+- `/server leave` - leave your current queue
+- `/server debug` - print runtime routing/group/queue diagnostics
 - `/server reload` - reload config (permission-controlled)
 
 ## Config (Velocity)

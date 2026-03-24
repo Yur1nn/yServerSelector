@@ -18,7 +18,7 @@ dependencies {
     compileOnly("com.velocitypowered:velocity-api:3.3.0-SNAPSHOT")
     annotationProcessor("com.velocitypowered:velocity-api:3.3.0-SNAPSHOT")
 
-    compileOnly("dev.onelimit.ycore:ycore-velocity:1.0.0")
+    implementation("dev.onelimit.ycore:ycore-velocity:1.0.0")
 
     implementation("org.yaml:snakeyaml:2.2")
 }
@@ -31,4 +31,5 @@ java {
 
 tasks.withType<JavaCompile>().configureEach {
     options.encoding = "UTF-8"
+    options.release.set(21)
 }
